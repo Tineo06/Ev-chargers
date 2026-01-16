@@ -1,0 +1,28 @@
+.stats-container {
+  display: flex;
+  justify-content: space-between; /* Esto los separa equitativamente */
+  align-items: center;
+  padding: 40px 40px;
+  max-width: 1280px;
+  margin: 0 auto;
+  border-top: 3px solid #c1c4c6; /* Una línea muy sutil arriba */
+}
+
+.stat-item {
+  text-align: left; /* Alineado a la izquierda como en tu foto */
+}
+
+.stat-item h2 {
+  font-size: 3.5em; /* Tamaño grande para los números */
+  font-weight: 700;
+  margin-bottom: 5px;
+  letter-spacing: -1px;
+}
+
+.stat-item p {
+  font-size: 0.75rem; /* Pequeño y en mayúsculas */
+  font-weight: 600;
+  color: #94a3b8; /* Gris suave */
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
