@@ -1,5 +1,5 @@
 import Header from './componets/Header';
-import Principal from './componets/principal';
+import Principal from './componets/Principal';
 import './App.css';
 import Datos from './componets/Datos';
 
