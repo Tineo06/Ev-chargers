@@ -13,6 +13,8 @@
   gap: 10px;
   font-weight: bold;
   font-size: 1.2rem;
+  text-decoration: none;
+  color: inherit;
 }
 
 .logo-icon {
@@ -32,4 +34,9 @@
   text-decoration: none;
   color: #666;
   font-size: 0.9rem;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover {
+  color: #10b981;
 }

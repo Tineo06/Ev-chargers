@@ -1,23 +1,30 @@
 .hero-section {
-  padding: 40px 0;
-  background-color: #f8fafc; /* Color de fondo ligero */
+  height: calc(100vh - 180px);
+  display: flex;
+  align-items: center;
+  padding: 20px 0;
+  background-color: #f8fafc;
+  overflow: hidden;
 }
 
 .hero-content {
   display: flex;
-  gap: 40px; /* Espacio entre la imagen y las tarjetas */
-  max-width: 1280px; /* Limita el ancho como en App.css */
+  gap: 50px;
+  max-width: 1200px;
+  width: 100%;
+  height: 100%;
+  max-height: 420px;
   margin: 0 auto;
   padding: 0 40px;
+  align-items: stretch;
 }
 
-/* Lado Izquierdo: Imagen y Texto */
 .hero-left {
-  flex: 3; /* Ocupa más espacio */
+  flex: 1.2;
   position: relative;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08); /* Sombra suave */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
 }
 
 .image-overlay {
@@ -31,6 +38,9 @@
   height: 100%;
   object-fit: cover;
   display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .overlay-text {
@@ -38,138 +48,150 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%); /* Degradado para el texto */
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
   color: white;
   padding: 30px;
 }
 
-.platform-tag {
-  background-color: rgba(255, 255, 255, 0.2);
-  padding: 5px 10px;
-  border-radius: 15px;
-  font-size: 0.7rem;
-  font-weight: bold;
-  margin-bottom: 10px;
-  display: inline-block;
-}
-
 .overlay-text h2 {
-  font-size: 2.5rem;
-  margin-bottom: 15px;
-  line-height: 1.2;
+  font-size: 2rem;
+  margin: 0 0 12px 0;
+  line-height: 1.3;
+  font-weight: 700;
+  color: white;
 }
 
 .overlay-text p {
   font-size: 0.9rem;
   line-height: 1.6;
   opacity: 0.9;
+  margin: 0;
+  color: white;
 }
 
-/* Lado Derecho: Selección de Portal */
 .hero-right {
-  flex: 2; /* Ocupa menos espacio */
+  flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 20px;
 }
 
 .hero-right h3 {
   font-size: 1.5rem;
   color: #1e293b;
-  margin-bottom: 5px;
+  margin: 0 0 4px 0;
+  font-weight: 700;
 }
 
 .portal-description {
   color: #64748b;
-  margin-bottom: 15px;
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  line-height: 1.5;
 }
 
 .card {
   background-color: white;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
   display: flex;
   gap: 20px;
-  align-items: flex-start; /* Alinea ícono y texto arriba */
-  transition: transform 0.2s ease-in-out; /* Animación al pasar el mouse */
+  align-items: flex-start;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
 }
 
 .card-icon {
-  font-size: 2rem;
-  color: #3b82f6; /* Azul para el icono */
-  background-color: #eff6ff; /* Fondo azul claro para el icono */
-  padding: 10px;
-  border-radius: 50%;
+  font-size: 1.8rem;
+  background: linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%);
+  padding: 14px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .card h4 {
   font-size: 1.1rem;
   color: #1e293b;
-  margin-bottom: 5px;
+  margin: 0 0 6px 0;
+  font-weight: 600;
 }
 
 .card-subtitle {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: #94a3b8;
-  margin-bottom: 10px;
+  margin: 0 0 10px 0;
 }
 
 .card-text {
   font-size: 0.9rem;
-  color: #475569;
+  color: #64748b;
   line-height: 1.5;
-  margin-bottom: 20px;
+  margin: 0 0 14px 0;
 }
 
 .btn-card {
-  background-color: transparent;
-  border: none;
-  color: #3b82f6; /* Azul para el botón */
-  font-weight: 600;
-  padding: 0;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 8px;
+  font-weight: 600;
   font-size: 0.9rem;
-  transition: color 0.2s;
-}
-
-.btn-card:hover {
-  color: #2563eb;
+  text-decoration: none;
+  transition: all 0.2s;
 }
 
 .transparent-btn {
-    border: 1px solid #e2e8f0; /* Borde para el botón transparente */
-    background-color: transparent;
-    color: #475569; /* Color de texto más oscuro */
-    padding: 10px 15px;
-    border-radius: 18px;
-    font-size: 0.9rem;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  color: #475569;
+  padding: 12px 20px;
+  border-radius: 10px;
 }
 
 .transparent-btn:hover {
-    background-color: #f1f5f9;
-    color: #1e293b;
+  background-color: #111827;
+  border-color: #111827;
+  color: white;
 }
 
 .black-btn {
-    border: 1px solid #e2e8f0;
-    background-color: #0f172a;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 18px;
-    font-size: 0.9rem;
+  border: none;
+  background-color: #111827;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
 }
 
 .black-btn:hover {
-    background-color: #1e293b;
-    color: white;
+  background-color: #1e293b;
+}
+
+@media (max-width: 900px) {
+  .hero-section {
+    height: auto;
+    min-height: calc(100vh - 80px);
+  }
+  
+  .hero-content {
+    flex-direction: column;
+    padding: 0 20px;
+    max-height: none;
+  }
+  
+  .hero-left {
+    min-height: 280px;
+  }
+  
+  .overlay-text h2 {
+    font-size: 1.4rem;
+  }
 }

@@ -1,0 +1,43 @@
+.chargers-section {
+  padding: 20px;
+}
+.chargers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.charger-card {
+  border: 1px solid #e5e7eb;
+  padding: 12px;
+  border-radius: 8px;
+  background: #fff;
+}
+.charger-card h3 {
+  margin: 0 0 6px 0;
+}
+.small {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 2px 0;
+}
+.card-actions { margin-top: 8px; display:flex; gap:8px }
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal {
+  background: #fff;
+  padding: 16px;
+  border-radius: 8px;
+  width: 320px;
+}
+.reserve-form label { display:block; margin-bottom:8px }
+.reserve-form input { width:100%; padding:8px; margin-top:4px }
+.modal-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:12px }
+.btn-card { padding:8px 12px; border-radius:6px; border:none; cursor:pointer }
+.black-btn { background:#111827; color:#fff }
+.transparent-btn { background:transparent; border:1px solid #d1d5db }

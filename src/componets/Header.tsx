@@ -1,17 +1,18 @@
+import { Link } from 'react-router-dom';
 import './Header.css';
 
 const Header = () => {
   return (
     <header className="navbar">
-      <div className="logo-container">
+      <Link to="/" className="logo-container">
         <div className="logo-icon">⚡</div>
         <span className="logo-text">EV Manage</span>
-      </div>
+      </Link>
 
       <nav className="nav-links">
-        <a href="#about">About</a>
-        <a href="#support">Support</a>
-        <a href="#contact">Contact</a>
+        <Link to="/about">About</Link>
+        <Link to="/support">Support</Link>
+        <Link to="/contact">Contact</Link>
       </nav>
     </header>
   );

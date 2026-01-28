@@ -1,28 +1,48 @@
 .stats-container {
   display: flex;
-  justify-content: space-between; /* Esto los separa equitativamente */
+  justify-content: space-around;
   align-items: center;
-  padding: 40px 40px;
-  max-width: 1280px;
+  padding: 30px 40px;
+  max-width: 1200px;
   margin: 0 auto;
-  border-top: 3px solid #c1c4c6; /* Una línea muy sutil arriba */
+  background: white;
+  flex-wrap: wrap;
+  gap: 20px;
 }
 
-.stat-item {
-  text-align: left; /* Alineado a la izquierda como en tu foto */
+.stats-container > div {
+  text-align: center;
+  padding: 8px 20px;
 }
 
-.stat-item h2 {
-  font-size: 3.5em; /* Tamaño grande para los números */
+.stats-container > div p:first-child {
+  font-size: 2rem;
   font-weight: 700;
-  margin-bottom: 5px;
+  margin: 0 0 4px 0;
+  color: #1e293b;
   letter-spacing: -1px;
 }
 
-.stat-item p {
-  font-size: 0.75rem; /* Pequeño y en mayúsculas */
+.stats-container > div p:last-child {
+  font-size: 0.7rem;
   font-weight: 600;
-  color: #94a3b8; /* Gris suave */
-  letter-spacing: 1px;
+  color: #94a3b8;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .stats-container {
+    padding: 20px;
+  }
+  
+  .stats-container > div {
+    flex: 1 1 40%;
+    padding: 8px;
+  }
+  
+  .stats-container > div p:first-child {
+    font-size: 1.5rem;
+  }
 }
