@@ -1,48 +1,47 @@
-.stats-container {
+.stats {
   display: flex;
   justify-content: space-around;
-  align-items: center;
-  padding: 30px 40px;
-  max-width: 1200px;
+  padding: 30px 20px;
+  max-width: 1100px;
   margin: 0 auto;
   background: white;
   flex-wrap: wrap;
   gap: 20px;
 }
 
-.stats-container > div {
+.stats > div {
   text-align: center;
   padding: 8px 20px;
 }
 
-.stats-container > div p:first-child {
-  font-size: 2rem;
+.stats .number {
+  font-size: 1.8rem;
   font-weight: 700;
   margin: 0 0 4px 0;
   color: #1e293b;
-  letter-spacing: -1px;
 }
 
-.stats-container > div p:last-child {
+.stats .label {
   font-size: 0.7rem;
   font-weight: 600;
   color: #94a3b8;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
   margin: 0;
 }
 
-@media (max-width: 768px) {
-  .stats-container {
-    padding: 20px;
-  }
-  
-  .stats-container > div {
+.stats .green {
+  color: #10b981;
+}
+
+.stats .blue {
+  color: #06b6d4;
+}
+
+@media (max-width: 600px) {
+  .stats > div {
     flex: 1 1 40%;
-    padding: 8px;
   }
   
-  .stats-container > div p:first-child {
-    font-size: 1.5rem;
+  .stats .number {
+    font-size: 1.4rem;
   }
 }

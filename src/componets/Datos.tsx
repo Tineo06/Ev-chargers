@@ -1,29 +1,26 @@
 import './Datos.css';
 
-interface EstadisticasProps {
-  number: string;
-  label: string;
-  color?: string;
-}
-
-const Estadisticas = ({ number, label, color }: EstadisticasProps) => {
+function Datos() {
   return (
-    <div style={{ color }}>
-      <p>{number}</p>
-      <p>{label}</p>
-    </div>
-  );
-};
-
-const Datos = () => {
-  return (
-    <section className="stats-container">
-      <Estadisticas number="50k+" label="USUARIOS ACTIVOS" />
-      <Estadisticas number="1.2M" label="SESIONES" />
-      <Estadisticas number="99.9%" label="TIEMPO ACTIVO" color="#10b981" /> 
-      <Estadisticas number="24/7" label="SOPORTE" color="#06b6d4" />
+    <section className="stats">
+      <div>
+        <p className="number">50k+</p>
+        <p className="label">USUARIOS</p>
+      </div>
+      <div>
+        <p className="number">1.2M</p>
+        <p className="label">SESIONES</p>
+      </div>
+      <div>
+        <p className="number green">99.9%</p>
+        <p className="label">ACTIVO</p>
+      </div>
+      <div>
+        <p className="number blue">24/7</p>
+        <p className="label">SOPORTE</p>
+      </div>
     </section>
   );
-};
+}
 
 export default Datos;
