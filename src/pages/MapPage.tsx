@@ -100,7 +100,7 @@ function MapPage() {
 
     const params = new URLSearchParams(window.location.search);
     if (params.get('success') === 'true') {
-      const pending = sessionStorage.getItem('pendingReservation');
+      const pending = localStorage.getItem('pendingReservation');
       if (pending) {
         try {
           const data = JSON.parse(pending);
@@ -120,7 +120,7 @@ function MapPage() {
         } catch (e) {
           console.error('Error al procesar reserva:', e);
         }
-        sessionStorage.removeItem('pendingReservation');
+        localStorage.removeItem('pendingReservation');
       }
       window.history.replaceState({}, '', '/cargadores');
     }
@@ -253,7 +253,7 @@ function MapPage() {
     e.preventDefault();
     if (!selected) return;
 
-    sessionStorage.setItem('pendingReservation', JSON.stringify({
+    localStorage.setItem('pendingReservation', JSON.stringify({
       chargerName: selected.emplazamie,
       horaInicio: horaInicio,
       horaFin: horaFin,

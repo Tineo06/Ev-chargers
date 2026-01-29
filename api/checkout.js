@@ -4,12 +4,15 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Método no permitido' });
+    return res.status(405).json({ error: 'Metodo no permitido' });
   }
 
   const { chargerName, potencia, horaInicio, horaFin, precioTotal, customerEmail, customerName } = req.body;
 
   const precioCentimos = Math.round(precioTotal * 100);
+
+  const origin = req.headers.origin || req.headers.referer || `https://${req.headers.host}`;
+  const baseUrl = origin.replace(/\/$/, '');
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -36,8 +39,8 @@ export default async function handler(req, res) {
         horaFin: horaFin,
         potencia: String(potencia)
       },
-      success_url: `${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'http://localhost:5173'}/cargadores?success=true`,
-      cancel_url: `${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'http://localhost:5173'}/cargadores?canceled=true`
+      success_url: `${baseUrl}/cargadores?success=true`,
+      cancel_url: `${baseUrl}/cargadores?canceled=true`
     });
 
     res.json({ url: session.url });
