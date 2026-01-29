@@ -254,3 +254,49 @@
 .btn-pay:hover {
   background: #1e293b;
 }
+
+.time-row {
+  display: flex;
+  gap: 12px;
+}
+
+.time-row label {
+  flex: 1;
+}
+
+.time-row input {
+  width: 100%;
+}
+
+.price-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.price-box p {
+  margin: 4px 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.price-box .total {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e2e8f0;
+  font-size: 16px;
+  color: #1e293b;
+}
+
+.reservation-time {
+  color: #3b82f6;
+  font-size: 12px;
+}
+
+.reservation-price {
+  color: #10b981;
+  font-size: 12px;
+  font-weight: 500;
+}

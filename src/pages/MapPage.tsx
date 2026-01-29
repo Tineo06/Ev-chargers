@@ -19,7 +19,9 @@ interface Reservation {
   id: string;
   date: string;
   chargerName: string;
-  chargerAddress: string;
+  horaInicio: string;
+  horaFin: string;
+  precioTotal: number;
   customerName: string;
   customerEmail: string;
   status: string;
@@ -32,84 +34,128 @@ declare global {
   }
 }
 
-const getReservations = (): Reservation[] => {
-  try {
-    return JSON.parse(localStorage.getItem('reservations') || '[]');
-  } catch {
-    return [];
+function getReservations(): Reservation[] {
+  const data = localStorage.getItem('reservations');
+  if (data) {
+    return JSON.parse(data);
   }
-};
+  return [];
+}
 
-const saveReservation = (reservation: Reservation) => {
+function saveReservation(reservation: Reservation) {
   const reservations = getReservations();
   reservations.unshift(reservation);
   localStorage.setItem('reservations', JSON.stringify(reservations));
-};
+}
 
-const MapPage = () => {
+function getPotenciaNumero(potencia: string): number {
+  const match = potencia.match(/[\d.,]+/);
+  if (match) {
+    return parseFloat(match[0].replace(',', '.'));
+  }
+  return 7.4;
+}
+
+function calcularPrecio(horaInicio: string, horaFin: string, potenciaKw: number): number {
+  const [h1, m1] = horaInicio.split(':').map(Number);
+  const [h2, m2] = horaFin.split(':').map(Number);
+  
+  const minutos1 = h1 * 60 + m1;
+  const minutos2 = h2 * 60 + m2;
+  
+  let diferencia = minutos2 - minutos1;
+  if (diferencia <= 0) {
+    diferencia = 60;
+  }
+  
+  const horas = diferencia / 60;
+  const precioPorKwh = 0.25;
+  const precio = horas * potenciaKw * precioPorKwh;
+  
+  return Math.round(precio * 100) / 100;
+}
+
+function MapPage() {
   const mapRef = useRef<HTMLDivElement>(null);
-  const [chargers, setChargers] = useState<Charger[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState<Charger | null>(null);
-  const [customerEmail, setCustomerEmail] = useState('');
-  const [customerName, setCustomerName] = useState('');
   const mapInstance = useRef<any>(null);
   const markersRef = useRef<any[]>([]);
+
+  const [chargers, setChargers] = useState<Charger[]>([]);
+  const [loading, setLoading] = useState(true);
   const [mapReady, setMapReady] = useState(false);
+  const [selected, setSelected] = useState<Charger | null>(null);
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [showReservations, setShowReservations] = useState(false);
 
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [horaInicio, setHoraInicio] = useState('10:00');
+  const [horaFin, setHoraFin] = useState('11:00');
+
+  const potenciaKw = selected ? getPotenciaNumero(selected.potenc_ia) : 7.4;
+  const precioTotal = calcularPrecio(horaInicio, horaFin, potenciaKw);
+
   useEffect(() => {
     setReservations(getReservations());
-    
+
     const params = new URLSearchParams(window.location.search);
     if (params.get('success') === 'true') {
       const pending = sessionStorage.getItem('pendingReservation');
       if (pending) {
-        const data = JSON.parse(pending);
-        const newReservation: Reservation = {
-          id: Date.now().toString(),
-          date: new Date().toLocaleString('es-ES'),
-          chargerName: data.chargerName,
-          chargerAddress: data.chargerAddress,
-          customerName: data.customerName,
-          customerEmail: data.customerEmail,
-          status: 'Confirmada',
-        };
-        saveReservation(newReservation);
-        setReservations(getReservations());
+        try {
+          const data = JSON.parse(pending);
+          const newReservation: Reservation = {
+            id: Date.now().toString(),
+            date: new Date().toLocaleString('es-ES'),
+            chargerName: data.chargerName || 'Cargador',
+            horaInicio: data.horaInicio || '10:00',
+            horaFin: data.horaFin || '11:00',
+            precioTotal: data.precioTotal || 5,
+            customerName: data.customerName || '',
+            customerEmail: data.customerEmail || '',
+            status: 'Confirmada'
+          };
+          saveReservation(newReservation);
+          setReservations(getReservations());
+        } catch (e) {
+          console.error('Error al procesar reserva:', e);
+        }
         sessionStorage.removeItem('pendingReservation');
-        window.history.replaceState({}, '', '/cargadores');
       }
+      window.history.replaceState({}, '', '/cargadores');
     }
   }, []);
 
   useEffect(() => {
     fetch(API_URL)
-      .then(r => r.json())
+      .then(response => response.json())
       .then(data => {
         const items: Charger[] = [];
-        for (const rec of data.records || []) {
-          const f = rec.record?.fields || rec.fields || {};
-          const gp = f.geo_point_2d;
-          if (gp && typeof gp.lat === 'number' && typeof gp.lon === 'number') {
+        const records = data.records || [];
+        
+        for (let i = 0; i < records.length; i++) {
+          const rec = records[i];
+          const fields = rec.record?.fields || rec.fields || {};
+          const geo = fields.geo_point_2d;
+          
+          if (geo && typeof geo.lat === 'number' && typeof geo.lon === 'number') {
             items.push({
-              id: rec.record?.id || rec.id || String(Math.random()),
-              lat: gp.lat,
-              lon: gp.lon,
-              emplazamie: f.emplazamie || 'Sin dirección',
-              distrito: f.distrito || 0,
-              conector: f.conector || '',
-              tipo_carga: f.tipo_carga || '',
-              potenc_ia: f.potenc_ia || '',
-              precio_iv: f.precio_iv || '',
+              id: rec.record?.id || rec.id || String(i),
+              lat: geo.lat,
+              lon: geo.lon,
+              emplazamie: fields.emplazamie || 'Sin dirección',
+              distrito: fields.distrito || 0,
+              conector: fields.conector || 'Tipo 2',
+              tipo_carga: fields.tipo_carga || 'Normal',
+              potenc_ia: fields.potenc_ia || '7.4 kW',
+              precio_iv: fields.precio_iv || '0.25 €/kWh'
             });
           }
         }
         setChargers(items);
       })
-      .catch(err => {
-        console.error('Error fetching chargers:', err);
+      .catch(error => {
+        console.error('Error:', error);
         setChargers([]);
       })
       .finally(() => setLoading(false));
@@ -121,132 +167,145 @@ const MapPage = () => {
       return;
     }
 
-    window.initGoogleMap = () => {
-      setMapReady(true);
-    };
-
     const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
-    if (!existingScript) {
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?callback=initGoogleMap`;
-      script.async = true;
-      script.defer = true;
-      document.head.appendChild(script);
+    if (existingScript) {
+      if (window.google && window.google.maps) {
+        setMapReady(true);
+      } else {
+        existingScript.addEventListener('load', () => setMapReady(true));
+      }
+      return;
     }
 
-    return () => {
-      delete window.initGoogleMap;
-    };
+    window.initGoogleMap = () => setMapReady(true);
+
+    const script = document.createElement('script');
+    script.src = 'https://maps.googleapis.com/maps/api/js?callback=initGoogleMap';
+    script.async = true;
+    document.head.appendChild(script);
   }, []);
 
   useEffect(() => {
-    if (!mapReady || !mapRef.current) return;
-    
+    if (!mapReady || !mapRef.current || !window.google || !window.google.maps) return;
+
     if (!mapInstance.current) {
       mapInstance.current = new window.google.maps.Map(mapRef.current, {
         center: { lat: 39.4699, lng: -0.3763 },
-        zoom: 13,
+        zoom: 13
       });
     }
 
     if (chargers.length === 0) return;
 
-    markersRef.current.forEach(m => m.setMap(null));
+    markersRef.current.forEach(marker => marker.setMap(null));
     markersRef.current = [];
 
     const infoWindow = new window.google.maps.InfoWindow();
 
-    chargers.forEach(c => {
+    for (let i = 0; i < chargers.length; i++) {
+      const charger = chargers[i];
+      
       const marker = new window.google.maps.Marker({
-        position: { lat: c.lat, lng: c.lon },
+        position: { lat: charger.lat, lng: charger.lon },
         map: mapInstance.current,
-        title: c.emplazamie,
+        title: charger.emplazamie
       });
 
       marker.addListener('click', () => {
-        const content = `
+        const html = `
           <div style="max-width:250px;font-family:sans-serif">
-            <strong style="font-size:14px">${c.emplazamie}</strong>
-            <p style="margin:6px 0 4px;font-size:12px;color:#666">Distrito: ${c.distrito}</p>
-            <p style="margin:4px 0;font-size:12px;color:#666">Conector: ${c.conector}</p>
-            <p style="margin:4px 0;font-size:12px;color:#666">Tipo: ${c.tipo_carga}</p>
-            <p style="margin:4px 0;font-size:12px;color:#666">Potencia: ${c.potenc_ia}</p>
-            <p style="margin:4px 0;font-size:12px;color:#666">Precio: ${c.precio_iv}</p>
-            <button id="reserve-btn-${c.id}" style="margin-top:10px;padding:10px 20px;background:#111827;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px">Reservar</button>
+            <strong>${charger.emplazamie}</strong>
+            <p style="margin:6px 0;font-size:12px;color:#666">Distrito: ${charger.distrito}</p>
+            <p style="margin:4px 0;font-size:12px;color:#666">Conector: ${charger.conector}</p>
+            <p style="margin:4px 0;font-size:12px;color:#666">Tipo: ${charger.tipo_carga}</p>
+            <p style="margin:4px 0;font-size:12px;color:#666">Potencia: ${charger.potenc_ia}</p>
+            <p style="margin:4px 0;font-size:12px;color:#666">Precio: 0.25 €/kWh</p>
+            <button id="btn-${charger.id}" style="margin-top:10px;padding:10px 20px;background:#111827;color:#fff;border:none;border-radius:6px;cursor:pointer">Reservar</button>
           </div>
         `;
-        infoWindow.setContent(content);
+        infoWindow.setContent(html);
         infoWindow.open(mapInstance.current, marker);
 
         setTimeout(() => {
-          const btn = document.getElementById(`reserve-btn-${c.id}`);
+          const btn = document.getElementById(`btn-${charger.id}`);
           if (btn) {
             btn.onclick = () => {
               infoWindow.close();
-              setSelected(c);
+              setSelected(charger);
             };
           }
         }, 100);
       });
 
       markersRef.current.push(marker);
-    });
+    }
 
-    if (chargers.length > 0) {
+    if (chargers.length > 0 && mapInstance.current) {
       const bounds = new window.google.maps.LatLngBounds();
-      chargers.forEach(c => bounds.extend({ lat: c.lat, lng: c.lon }));
+      for (let i = 0; i < chargers.length; i++) {
+        bounds.extend({ lat: chargers[i].lat, lng: chargers[i].lon });
+      }
       mapInstance.current.fitBounds(bounds);
     }
   }, [chargers, mapReady]);
 
-  const handleReserve = async (e: React.FormEvent) => {
+  async function handleReserve(e: React.FormEvent) {
     e.preventDefault();
     if (!selected) return;
 
     sessionStorage.setItem('pendingReservation', JSON.stringify({
       chargerName: selected.emplazamie,
-      chargerAddress: selected.emplazamie,
-      customerName,
-      customerEmail,
+      horaInicio: horaInicio,
+      horaFin: horaFin,
+      precioTotal: precioTotal,
+      customerName: customerName,
+      customerEmail: customerEmail
     }));
 
+    const apiUrl = import.meta.env.PROD 
+      ? '/api/checkout' 
+      : 'http://localhost:4242/create-checkout-session';
+
     try {
-      const res = await fetch('http://localhost:4242/create-checkout-session', {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          charger: {
-            id: selected.id,
-            name: selected.emplazamie,
-            address: selected.emplazamie,
-            distrito: selected.distrito,
-          },
-          customerEmail,
-          customerName,
-        }),
+          chargerName: selected.emplazamie,
+          potencia: potenciaKw,
+          horaInicio: horaInicio,
+          horaFin: horaFin,
+          precioTotal: precioTotal,
+          customerEmail: customerEmail,
+          customerName: customerName
+        })
       });
-      const json = await res.json();
-      if (json.url) {
-        window.location.href = json.url;
+
+      const data = await response.json();
+      
+      if (data.url) {
+        window.location.href = data.url;
       } else {
-        alert('Error al crear la sesión de pago. Asegúrate de que el servidor está corriendo.');
+        alert('Error al crear el pago');
       }
-    } catch {
-      alert('Error de conexión con el servidor de pagos. Ejecuta: npm run start:server');
+    } catch (error) {
+      alert('Error de conexión. Ejecuta: npm run start:server');
     }
-  };
+  }
 
-  const closeModal = () => {
+  function closeModal() {
     setSelected(null);
-    setCustomerEmail('');
     setCustomerName('');
-  };
+    setCustomerEmail('');
+    setHoraInicio('10:00');
+    setHoraFin('11:00');
+  }
 
-  const deleteReservation = (id: string) => {
+  function deleteReservation(id: string) {
     const updated = reservations.filter(r => r.id !== id);
     localStorage.setItem('reservations', JSON.stringify(updated));
     setReservations(updated);
-  };
+  }
 
   return (
     <section className="map-page">
@@ -255,7 +314,7 @@ const MapPage = () => {
           <h2>Puntos de carga en Valencia</h2>
           <p className="map-subtitle">Haz clic en un marcador para ver detalles y reservar</p>
         </div>
-        <button 
+        <button
           className={`btn-reservations ${showReservations ? 'active' : ''}`}
           onClick={() => setShowReservations(!showReservations)}
         >
@@ -275,6 +334,8 @@ const MapPage = () => {
                   <div className="reservation-info">
                     <strong>{r.chargerName}</strong>
                     <span className="reservation-date">{r.date}</span>
+                    <span className="reservation-time">🕐 {r.horaInicio || '10:00'} - {r.horaFin || '11:00'}</span>
+                    <span className="reservation-price">💰 {(r.precioTotal || 5).toFixed(2)} €</span>
                     <span className="reservation-customer">{r.customerName} · {r.customerEmail}</span>
                     <span className={`reservation-status ${r.status.toLowerCase()}`}>{r.status}</span>
                   </div>
@@ -306,8 +367,9 @@ const MapPage = () => {
             <h3>Reservar cargador</h3>
             <p className="modal-address">{selected.emplazamie}</p>
             <p className="modal-details">
-              {selected.conector} · {selected.tipo_carga} · {selected.precio_iv}
+              {selected.conector} · {selected.tipo_carga} · Potencia: {potenciaKw} kW
             </p>
+
             <form onSubmit={handleReserve} className="reserve-form">
               <label>
                 Nombre
@@ -319,6 +381,7 @@ const MapPage = () => {
                   placeholder="Tu nombre"
                 />
               </label>
+
               <label>
                 Email
                 <input
@@ -329,12 +392,41 @@ const MapPage = () => {
                   placeholder="tu@email.com"
                 />
               </label>
+
+              <div className="time-row">
+                <label>
+                  Hora inicio
+                  <input
+                    type="time"
+                    value={horaInicio}
+                    onChange={e => setHoraInicio(e.target.value)}
+                    required
+                  />
+                </label>
+
+                <label>
+                  Hora fin
+                  <input
+                    type="time"
+                    value={horaFin}
+                    onChange={e => setHoraFin(e.target.value)}
+                    required
+                  />
+                </label>
+              </div>
+
+              <div className="price-box">
+                <p>Potencia: <strong>{potenciaKw} kW</strong></p>
+                <p>Precio por kWh: <strong>0.25 €</strong></p>
+                <p className="total">Total a pagar: <strong>{precioTotal.toFixed(2)} €</strong></p>
+              </div>
+
               <div className="modal-actions">
                 <button type="button" onClick={closeModal} className="btn-cancel">
                   Cancelar
                 </button>
                 <button type="submit" className="btn-pay">
-                  Pagar 5€ y reservar
+                  Pagar {precioTotal.toFixed(2)} € con Stripe
                 </button>
               </div>
             </form>
@@ -343,6 +435,6 @@ const MapPage = () => {
       )}
     </section>
   );
-};
+}
 
 export default MapPage;

@@ -1,19 +1,14 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
 import Stripe from 'stripe';
 
-dotenv.config();
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Método no permitido' });
+  }
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
-
-app.post('/create-checkout-session', async (req, res) => {
   const { chargerName, potencia, horaInicio, horaFin, precioTotal, customerEmail, customerName } = req.body;
-  
+
   const precioCentimos = Math.round(precioTotal * 100);
 
   try {
@@ -41,8 +36,8 @@ app.post('/create-checkout-session', async (req, res) => {
         horaFin: horaFin,
         potencia: String(potencia)
       },
-      success_url: process.env.SUCCESS_URL || 'http://localhost:5173/cargadores?success=true',
-      cancel_url: process.env.CANCEL_URL || 'http://localhost:5173/cargadores?canceled=true'
+      success_url: `${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'http://localhost:5173'}/cargadores?success=true`,
+      cancel_url: `${process.env.VERCEL_URL ? 'https://' + process.env.VERCEL_URL : 'http://localhost:5173'}/cargadores?canceled=true`
     });
 
     res.json({ url: session.url });
@@ -50,7 +45,4 @@ app.post('/create-checkout-session', async (req, res) => {
     console.error(error);
     res.status(500).json({ error: 'Error al crear pago' });
   }
-});
-
-const port = process.env.PORT || 4242;
-app.listen(port, () => console.log(`Servidor en http://localhost:${port}`));
+}
